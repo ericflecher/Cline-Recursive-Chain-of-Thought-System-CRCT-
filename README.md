@@ -1,109 +1,96 @@
-# Cline Recursive Chain-of-Thought System (CRCT) - v7.0
+# CLI Onboarding Agent
 
-Welcome to the **Cline Recursive Chain-of-Thought System (CRCT)**, a framework designed to manage context, dependencies, and tasks in large-scale Cline projects within VS Code. Built for the Cline extension, CRCT leverages a recursive, file-based approach with a modular dependency tracking system to keep your project's state persistent and efficient, even as complexity grows.
+A command-line tool that generates standardized folder structures from templates, designed to streamline and standardize the setup of new domain projects.
 
-This is **v7.0**, a basic but functional release of an ongoing refactor to improve dependency tracking modularity. While the full refactor is still in progress (stay tuned!), this version offers a stable starting point for community testing and feedback. It includes base templates for all core files and the new `dependency_processor.py` script.
+## Features
 
----
+- Generate project structures from template folders
+- Exclude guide documents from the generated structure
+- Support for custom exclude and include patterns
+- Dry run mode to preview changes
+- Validation of the generated structure
 
-## Key Features
+## Installation
 
-- **Recursive Decomposition**: Breaks tasks into manageable subtasks, organized via directories and files for isolated context management.
-- **Minimal Context Loading**: Loads only essential data, expanding via dependency trackers as needed.
-- **Persistent State**: Uses the VS Code file system to store context, instructions, outputs, and dependencies—kept up-to-date via a **Mandatory Update Protocol (MUP)**.
-- **Modular Dependency Tracking**: 
-  - `dependency_tracker.md` (module-level dependencies)
-  - `doc_tracker.md` (documentation dependencies)
-  - Mini-trackers (file/function-level within modules)
-  - Uses hierarchical keys and RLE compression for efficiency (~90% fewer characters vs. full names in initial tests).
-- **Phase-Based Workflow**: Operates in distinct phases—**Set-up/Maintenance**, **Strategy**, **Execution**—controlled by `.clinerules`.
-- **Chain-of-Thought Reasoning**: Ensures transparency with step-by-step reasoning and reflection.
+```bash
+# Clone the repository
+git clone <repository-url>
+cd cli-onboarding-agent
 
----
-
-## Quickstart
-
-1. **Clone the Repo**: 
-   ```bash
-   git clone https://github.com/RPG-fan/Cline-Recursive-Chain-of-Thought-System-CRCT-.git
-   cd Cline-Recursive-Chain-of-Thought-System-CRCT-
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set Up Cline Extension**:
-   - Open the project in VS Code with the Cline extension installed.
-   - Copy `cline_docs/prompts/core_prompt(put this in Custom Instructions).md` into the Cline system prompt field.
-
-4. **Start the System**:
-   - Type `Start.` in the Cline input to initialize the system.
-   - The LLM will bootstrap from `.clinerules`, creating missing files and guiding you through setup if needed.
-
-*Note*: The Cline extension’s LLM automates most commands and updates to `cline_docs/`. Minimal user intervention is required (in theory!).
-
----
-
-## Project Structure
-
-```
-cline/
-│   .clinerules              # Controls phase and state
-│   README.md                # This file
-│   requirements.txt         # Python dependencies
-│
-├───cline_docs/              # Operational memory
-│   │   activeContext.md     # Current state and priorities
-│   │   changelog.md         # Logs significant changes
-│   │   productContext.md    # Project purpose and user needs
-│   │   progress.md          # Tracks progress
-│   │   projectbrief.md      # Mission and objectives
-│   │   dependency_tracker.md # Module-level dependencies
-│   │   ...                  # Additional templates
-│   └───prompts/             # System prompts and plugins
-│       core_prompt.md       # Core system instructions
-│       setup_maintenance_plugin.md
-│       strategy_plugin.md
-│       execution_plugin.md
-│
-├───cline_utils/             # Utility scripts
-│   └───dependency_system/
-│       dependency_processor.py # Dependency management script
-│
-├───docs/                    # Project documentation
-│   │   doc_tracker.md       # Documentation dependencies
-│
-├───src/                     # Source code root
-│
-└───strategy_tasks/          # Strategic plans
+# Install the package in development mode
+pip install -e .
 ```
 
----
+## Usage
 
-## Current Status & Future Plans
+```bash
+# Basic usage with default template
+onboard-project new_project
 
-- **v7.0**: A basic, functional release with modular dependency tracking via `dependency_processor.py`. Includes templates for all `cline_docs/` files.
-- **Efficiency**: Achieves a ~1.9 efficiency ratio (90% fewer characters) for dependency tracking vs. full names—improving with scale.
-- **Ongoing Refactor**: I’m enhancing modularity and token efficiency further. The next version will refine dependency storage and extend savings to simpler projects.
+# Specify a custom template
+onboard-project --template ~/templates/python_project new_project
 
-Feedback is welcome! Please report bugs or suggestions via GitHub Issues.
+# Force overwrite of existing files
+onboard-project --force --template ~/templates/python_project existing_project
 
----
+# Dry run to see what would be created
+onboard-project --dry-run --template ~/templates/python_project new_project
 
-## Getting Started (Optional - Existing Projects)
+# Exclude additional patterns
+onboard-project --exclude "*.pyc" --exclude ".DS_Store" new_project
 
-To test on an existing project:
-1. Copy your project into `src/`.
-2. Use these prompts to kickstart the LLM:
-   - `Perform initial setup and populate dependency trackers.`
-   - `Review the current state and suggest next steps.`
+# Include specific guide documents
+onboard-project --include "README_guide.md" new_project
+```
 
-The system will analyze your codebase, initialize trackers, and guide you forward.
+## Command-Line Options
 
----
+- `TARGET_PATH`: The path where the new project structure will be created
+- `-t, --template PATH`: Specify the template folder path (default: built-in template)
+- `-c, --config PATH`: Specify a configuration file (JSON or YAML)
+- `-f, --force`: Force overwrite of existing files without prompting
+- `-d, --dry-run`: Show what would be created without making any changes
+- `-v, --verbose`: Enable verbose output
+- `--exclude PATTERN`: Exclude files matching the pattern (can be specified multiple times)
+- `--include PATTERN`: Include files matching the pattern even if they match exclude patterns (can be specified multiple times)
+- `-h, --help`: Show help message and exit
 
-## Thanks!
+## Template Structure
 
-This is a labor of love to make Cline projects more manageable. I’d love to hear your thoughts—try it out and let me know what works (or doesn’t)!
+A template folder should have the following structure:
+
+```
+template_folder/
+├── README.md                      # Project overview
+├── README_guide.md                # Guide document (will be excluded)
+├── docs/
+│   ├── requirements.md            # Requirements documentation
+│   └── setup_guide.md             # Guide document (will be excluded)
+├── src/
+│   ├── __init__.py                # Package initialization
+│   └── main.py                    # Main module
+├── tests/
+│   └── test_main.py               # Main module tests
+└── setup.py                       # Package setup file
+```
+
+Files with `_guide` in their names are excluded by default. You can customize this behavior using the `--exclude` and `--include` options.
+
+## Development
+
+### Running Tests
+
+```bash
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=cli_onboarding_agent
+```
+
+## License
+
+MIT
