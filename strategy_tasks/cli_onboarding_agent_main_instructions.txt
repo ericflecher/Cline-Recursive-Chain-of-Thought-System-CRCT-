@@ -1,0 +1,26 @@
+# CLI Onboarding Agent - Main Strategy Instructions
+
+## Objective
+Develop a command-line interface (CLI) tool that leverages the OpenAI Agents SDK to generate a standardized folder structure for new domain projects, pre-populated with template documents.
+
+## Context
+This project aims to streamline and standardize the setup of new domain projects by automating the creation of a predefined folder structure and populating it with essential template documents. The tool will save time, reduce errors, and provide consistency across projects.
+
+## Dependencies
+- 1A (src)
+
+## High-Level Tasks
+1. **CLI Tool Setup**: Create the basic CLI structure with argument parsing for folder paths
+2. **Template Folder Management**: Implement functionality to read from a template folder
+3. **Folder Structure Generation**: Create logic to generate the folder structure based on the template
+4. **Template Document Population**: Implement copying of template documents to the target structure
+5. **Validation and Testing**: Add validation checks and tests for the tool's functionality
+
+## Expected Output
+- A functional CLI tool that can generate standardized folder structures with template documents
+- Documentation on how to use the tool
+- Tests to validate the tool's functionality
+
+## Notes
+- The tool should exclude any guide documents (identified by "_guide" in their names) when copying templates
+- The project will be used in a dogfooding exercise to generate the initial folder structure for the Gherkin Feature Agent component

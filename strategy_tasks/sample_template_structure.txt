@@ -1,0 +1,67 @@
+# Sample Template Folder Structure
+
+This document provides a sample template folder structure that the CLI Onboarding Agent will use as a reference. This helps visualize what the tool will be reading from and what it should produce in the target location.
+
+## Example Template Folder
+
+```
+template_folder/
+├── README.md                      # Project overview
+├── README_guide.md                # Guide document (will be excluded)
+├── docs/
+│   ├── requirements.md            # Requirements documentation
+│   ├── design.md                  # Design documentation
+│   └── setup_guide.md             # Guide document (will be excluded)
+├── src/
+│   ├── __init__.py                # Package initialization
+│   ├── main.py                    # Main module
+│   └── utils/
+│       ├── __init__.py            # Utilities package initialization
+│       └── helpers.py             # Helper functions
+├── tests/
+│   ├── __init__.py                # Test package initialization
+│   ├── test_main.py               # Main module tests
+│   └── test_utils/
+│       ├── __init__.py            # Utilities test package initialization
+│       └── test_helpers.py        # Helper functions tests
+└── setup.py                       # Package setup file
+```
+
+## Expected Output in Target Folder
+
+When the CLI tool is run with the above template folder and a target folder path, it should produce the following structure in the target location (excluding guide documents):
+
+```
+target_folder/
+├── README.md                      # Project overview
+├── docs/
+│   ├── requirements.md            # Requirements documentation
+│   └── design.md                  # Design documentation
+├── src/
+│   ├── __init__.py                # Package initialization
+│   ├── main.py                    # Main module
+│   └── utils/
+│       ├── __init__.py            # Utilities package initialization
+│       └── helpers.py             # Helper functions
+├── tests/
+│   ├── __init__.py                # Test package initialization
+│   ├── test_main.py               # Main module tests
+│   └── test_utils/
+│       ├── __init__.py            # Utilities test package initialization
+│       └── test_helpers.py        # Helper functions tests
+└── setup.py                       # Package setup file
+```
+
+## Notes
+
+1. Files with "_guide" in their names are excluded from copying
+2. The directory structure is preserved exactly as in the template
+3. All other files are copied with their original content
+4. The tool should handle nested directories correctly
+5. Empty directories should be created in the target location
+
+This sample structure will be useful for:
+- Guiding the implementation of the template reader
+- Testing the folder structure generation
+- Validating the document population functionality
+- Creating test cases for the CLI tool

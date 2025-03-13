@@ -1,0 +1,116 @@
+# CLI Interface Design
+
+This document outlines the design of the command-line interface for the CLI Onboarding Agent, including command structure, arguments, options, and usage examples.
+
+## Command Structure
+
+The CLI tool will be invoked using the following command structure:
+
+```
+onboard-project [OPTIONS] TARGET_PATH
+```
+
+Where:
+- `onboard-project` is the command name
+- `[OPTIONS]` are optional flags and parameters
+- `TARGET_PATH` is the required path where the new project structure will be created
+
+## Arguments and Options
+
+### Required Arguments
+
+- `TARGET_PATH`: The path where the new project structure will be created
+  - Must be a valid directory path
+  - Can be absolute or relative to the current working directory
+  - If the directory doesn't exist, it will be created
+  - If the directory exists, the tool will prompt for confirmation before proceeding
+
+### Options
+
+- `-t, --template PATH`: Specify the template folder path
+  - Default: A built-in default template
+  - Must be a valid directory path
+  - Can be absolute or relative to the current working directory
+
+- `-c, --config PATH`: Specify a configuration file
+  - Optional: If not provided, default settings will be used
+  - JSON or YAML format with configuration options
+
+- `-f, --force`: Force overwrite of existing files without prompting
+  - Default: False (will prompt for confirmation)
+
+- `-d, --dry-run`: Show what would be created without making any changes
+  - Default: False
+
+- `-v, --verbose`: Enable verbose output
+  - Default: False
+  - When enabled, shows detailed progress information
+
+- `--exclude PATTERN`: Exclude files matching the pattern
+  - Can be specified multiple times
+  - Default: "*_guide*" (excludes guide documents)
+
+- `--include PATTERN`: Include files matching the pattern even if they match exclude patterns
+  - Can be specified multiple times
+  - Default: None
+
+- `-h, --help`: Show help message and exit
+
+## Usage Examples
+
+1. Basic usage with default template:
+   ```
+   onboard-project new_project
+   ```
+
+2. Specify a custom template:
+   ```
+   onboard-project --template ~/templates/python_project new_project
+   ```
+
+3. Force overwrite of existing files:
+   ```
+   onboard-project --force --template ~/templates/python_project existing_project
+   ```
+
+4. Dry run to see what would be created:
+   ```
+   onboard-project --dry-run --template ~/templates/python_project new_project
+   ```
+
+5. Exclude additional patterns:
+   ```
+   onboard-project --exclude "*.pyc" --exclude ".DS_Store" new_project
+   ```
+
+6. Include specific guide documents:
+   ```
+   onboard-project --include "README_guide.md" new_project
+   ```
+
+## Error Handling
+
+The CLI will provide clear error messages for common issues:
+
+1. Invalid target path
+2. Invalid template path
+3. Insufficient permissions
+4. Disk space issues
+5. Conflicts with existing files
+
+## Output Format
+
+The CLI will provide structured output:
+
+1. Initial summary of what will be created
+2. Progress information during creation
+3. Summary of results after completion
+4. Clear error messages if issues occur
+
+## Implementation Notes
+
+1. Use a library like Click or argparse for argument parsing
+2. Implement proper help text and documentation
+3. Follow CLI best practices for option naming and behavior
+4. Provide colorized output where appropriate
+5. Ensure proper error codes are returned

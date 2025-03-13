@@ -1,0 +1,42 @@
+# Template Folder Management Instructions
+
+## Objective
+Implement functionality to read from a template folder, identifying its structure and contents for replication.
+
+## Context
+The CLI Onboarding Agent needs to read from a specified template folder to understand what structure and files need to be created in the target location. This component is responsible for scanning the template folder, identifying its structure, and preparing the information needed for the folder generation and document population steps.
+
+## Dependencies
+- 1A (src)
+- Task 1: CLI Tool Setup (for accessing command-line arguments)
+
+## Steps
+1. Create a template reader module:
+   - Implement functions to scan a directory recursively
+   - Build a representation of the folder structure (directories and files)
+   - Identify guide documents (containing "_guide" in their names) to be excluded
+
+2. Implement template validation:
+   - Verify that the template folder exists and is accessible
+   - Check that the template folder has a valid structure
+   - Validate that there are template documents to copy
+
+3. Create a template configuration handler:
+   - Add support for optional template configuration files
+   - Implement parsing of configuration options
+   - Handle template versioning if needed
+
+4. Add template caching (optional):
+   - Implement caching of template structures for frequently used templates
+   - Add cache invalidation when templates are modified
+
+## Expected Output
+- A module that can scan and validate template folders
+- A data structure representing the template folder's structure
+- Functions to identify which files should be copied and which should be excluded
+
+## Notes
+- Consider using pathlib for more readable path manipulation
+- Ensure proper error handling for inaccessible directories or files
+- The template reader should be efficient even with large template structures
+- Consider adding support for template variables that can be replaced during copying

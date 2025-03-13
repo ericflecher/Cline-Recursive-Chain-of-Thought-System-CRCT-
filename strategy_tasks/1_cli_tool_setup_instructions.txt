@@ -1,0 +1,44 @@
+# CLI Tool Setup Instructions
+
+## Objective
+Create the basic CLI structure with argument parsing for folder paths, establishing the foundation for the CLI Onboarding Agent.
+
+## Context
+This is the first step in developing the CLI Onboarding Agent. The CLI structure needs to handle command-line arguments, particularly the target folder path where the new domain project structure will be created.
+
+## Dependencies
+- 1A (src)
+
+## Steps
+1. Set up the basic project structure:
+   - Create a main Python module for the CLI tool
+   - Set up necessary package files (setup.py, __init__.py)
+   - Create a requirements.txt file for dependencies
+
+2. Implement command-line argument parsing:
+   - Add support for specifying the target folder path
+   - Add support for specifying the template folder path
+   - Include help text and usage examples
+   - Validate that the provided paths are valid
+
+3. Create the main CLI entry point:
+   - Set up the main function structure
+   - Implement argument validation
+   - Add basic logging and error handling
+   - Create a skeleton for calling the folder generation and template population functions
+
+4. Set up the OpenAI Agents SDK integration:
+   - Add the necessary imports and setup code
+   - Create a basic agent structure
+   - Implement configuration handling for API keys
+
+## Expected Output
+- A functional CLI entry point that can parse and validate command-line arguments
+- A skeleton structure for the rest of the tool's functionality
+- Basic error handling and logging
+
+## Notes
+- Ensure the CLI interface is user-friendly with clear error messages
+- Follow best practices for Python CLI tool development
+- Consider using libraries like argparse or click for argument parsing
+- Make sure to handle edge cases like invalid paths or missing arguments

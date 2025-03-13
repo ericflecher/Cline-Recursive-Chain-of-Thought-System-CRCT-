@@ -1,0 +1,44 @@
+# Folder Structure Generation Instructions
+
+## Objective
+Create logic to generate the folder structure based on the template, ensuring all necessary directories are created in the target location.
+
+## Context
+After reading the template folder structure, the CLI Onboarding Agent needs to recreate this structure in the target location. This component is responsible for creating all the necessary directories while handling edge cases like existing folders and permission issues.
+
+## Dependencies
+- 1A (src)
+- Task 1: CLI Tool Setup (for accessing command-line arguments)
+- Task 2: Template Folder Management (for the template structure information)
+
+## Steps
+1. Create a folder structure generator module:
+   - Implement functions to create directories based on the template structure
+   - Handle nested directory creation
+   - Skip guide document directories if they should be excluded
+
+2. Implement target location validation and preparation:
+   - Verify that the target location is valid and accessible
+   - Check if the target location already exists and handle accordingly
+   - Ensure proper permissions for creating directories
+
+3. Add conflict resolution:
+   - Implement strategies for handling existing directories
+   - Add options for overwriting, merging, or skipping existing content
+   - Provide clear feedback on conflict resolution actions
+
+4. Implement progress tracking:
+   - Add logging of directory creation progress
+   - Implement error handling for failed directory creation
+   - Provide summary statistics of created directories
+
+## Expected Output
+- A module that can create a directory structure based on a template
+- Functions to handle edge cases and conflicts
+- Logging and error handling for the directory creation process
+
+## Notes
+- Use atomic operations where possible to prevent partial directory creation
+- Consider implementing a dry-run option to show what would be created without actually creating it
+- Ensure proper error handling for permission issues or disk space limitations
+- Consider adding a rollback mechanism for failed operations

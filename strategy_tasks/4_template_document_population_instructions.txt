@@ -1,0 +1,47 @@
+# Template Document Population Instructions
+
+## Objective
+Implement copying of template documents to the target structure, ensuring all non-guide documents are properly transferred.
+
+## Context
+After creating the directory structure, the CLI Onboarding Agent needs to copy template documents from the template folder to the corresponding locations in the target structure. This component is responsible for copying files, excluding guide documents, and handling any file-specific operations.
+
+## Dependencies
+- 1A (src)
+- Task 1: CLI Tool Setup (for accessing command-line arguments)
+- Task 2: Template Folder Management (for the template structure and file information)
+- Task 3: Folder Structure Generation (for the created directory structure)
+
+## Steps
+1. Create a document population module:
+   - Implement functions to copy files from the template to the target structure
+   - Filter out guide documents (containing "_guide" in their names)
+   - Preserve file attributes and permissions where appropriate
+
+2. Add file content processing:
+   - Implement support for template variables in documents
+   - Add functions to process file content during copying if needed
+   - Handle different file types appropriately (text vs. binary)
+
+3. Implement conflict resolution for files:
+   - Add strategies for handling existing files
+   - Implement options for overwriting, merging, or skipping
+   - Provide clear feedback on file conflict resolution
+
+4. Add progress tracking and validation:
+   - Log file copying progress
+   - Implement error handling for failed file operations
+   - Validate copied files to ensure integrity
+   - Provide summary statistics of copied files
+
+## Expected Output
+- A module that can copy template documents to the target structure
+- Functions to process file content and handle conflicts
+- Logging and error handling for the file copying process
+
+## Notes
+- Use buffered I/O for efficient file copying
+- Consider implementing checksums for file validation
+- Handle large files efficiently
+- Ensure proper error handling for file permission issues or disk space limitations
+- Consider adding support for symbolic links or other special file types
