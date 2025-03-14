@@ -1,0 +1,2 @@
+[console_scripts]
+onboard-project = cli_onboarding_agent.cli:main

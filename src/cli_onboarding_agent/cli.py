@@ -61,7 +61,28 @@ from cli_onboarding_agent.validator import validate_result
     multiple=True,
     help="Include files matching the pattern even if they match exclude patterns. Can be specified multiple times."
 )
-def main(target_path, template, config, force, dry_run, verbose, exclude, include):
+@click.option(
+    "--project-name",
+    help="Name of the project. Used to replace {{project_name}} in template files."
+)
+@click.option(
+    "--package-name",
+    help="Name of the package. Used to replace {{package_name}} in template files."
+)
+@click.option(
+    "--project-description",
+    help="Description of the project. Used to replace {{project_description}} in template files."
+)
+@click.option(
+    "--author",
+    help="Author of the project. Used to replace {{author}} in template files."
+)
+@click.option(
+    "--author-email",
+    help="Email of the author. Used to replace {{author_email}} in template files."
+)
+def main(target_path, template, config, force, dry_run, verbose, exclude, include,
+         project_name, package_name, project_description, author, author_email):
     """
     Generate a standardized folder structure from a template.
 
@@ -165,6 +186,40 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
     using_temp_template = template is None
     
     try:
+        # Prepare variables for template replacement
+        variables = {}
+        
+        # Extract project name from target path if not provided
+        if not project_name:
+            project_name = Path(target_path).name
+            logger.info(f"Using target directory name as project name: {project_name}")
+        variables["project_name"] = project_name
+        
+        # Use project_name as package_name if not provided, but convert to snake_case
+        if not package_name:
+            package_name = project_name.lower().replace("-", "_").replace(" ", "_")
+            logger.info(f"Using derived package name: {package_name}")
+        variables["package_name"] = package_name
+        
+        # Set default values for other variables if not provided
+        if not project_description:
+            project_description = f"A Python project named {project_name}"
+            logger.info(f"Using default project description: {project_description}")
+        variables["project_description"] = project_description
+        
+        if not author:
+            import getpass
+            author = getpass.getuser()
+            logger.info(f"Using current user as author: {author}")
+        variables["author"] = author
+        
+        if not author_email:
+            author_email = f"{author.lower().replace(' ', '.')}@example.com"
+            logger.info(f"Using default author email: {author_email}")
+        variables["author_email"] = author_email
+        
+        logger.debug(f"Template variables: {variables}")
+        
         # 1. Read the template structure
         logger.info("Reading template structure...")
         template_structure = read_template(template_path, exclude, include)
@@ -183,8 +238,9 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
         
         # 3. Populate the documents
         logger.info("Populating documents...")
+        logger.info(f"Using variables for template replacement: {variables}")
         if not dry_run:
-            populate_documents(target_path, template_path, template_structure, dry_run, force)
+            populate_documents(target_path, template_path, template_structure, dry_run, force, variables)
         
         # 4. Validate the result
         logger.info("Validating result...")

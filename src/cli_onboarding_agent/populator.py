@@ -100,6 +100,7 @@ def process_file_content(
         True if the file was processed successfully, False otherwise
     """
     if not variables:
+        logger.warning(f"No variables provided for template replacement in {source_file}")
         return True  # No processing needed
     
     try:
@@ -107,16 +108,44 @@ def process_file_content(
         with open(source_file, 'r', encoding='utf-8') as f:
             content = f.read()
         
+        logger.info(f"Processing file content for {target_file}")
+        logger.info(f"Variables: {variables}")
+        logger.info(f"Original content (first 100 chars): {content[:100]}")
+        
+        # Check if the file contains any template variables
+        original_content = content
+        
         # Replace variables
         for key, value in variables.items():
-            placeholder = f"{{{{ {key} }}}}"
-            content = content.replace(placeholder, value)
+            # Try both formats: with and without spaces
+            placeholder_with_spaces = f"{{{{ {key} }}}}"
+            placeholder_without_spaces = f"{{{{{key}}}}}"
+            
+            logger.info(f"Looking for placeholders: '{placeholder_with_spaces}' or '{placeholder_without_spaces}' in {target_file}")
+            
+            if placeholder_with_spaces in content:
+                logger.info(f"Found placeholder: '{placeholder_with_spaces}' in {target_file}")
+                logger.info(f"Replacing '{placeholder_with_spaces}' with '{value}' in {target_file}")
+                content = content.replace(placeholder_with_spaces, value)
+            
+            if placeholder_without_spaces in content:
+                logger.info(f"Found placeholder: '{placeholder_without_spaces}' in {target_file}")
+                logger.info(f"Replacing '{placeholder_without_spaces}' with '{value}' in {target_file}")
+                content = content.replace(placeholder_without_spaces, value)
+            
+            if placeholder_with_spaces not in content and placeholder_without_spaces not in content:
+                logger.warning(f"Neither placeholder '{placeholder_with_spaces}' nor '{placeholder_without_spaces}' found in {target_file}")
+        
+        # Check if any replacements were made
+        if content == original_content:
+            logger.warning(f"No template variables were replaced in {target_file}")
+            logger.info(f"Content after replacement (first 100 chars): {content[:100]}")
         
         # Write to the target file
         with open(target_file, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        logger.debug(f"Processed file content: {target_file}")
+        logger.info(f"Processed file content: {target_file}")
         return True
     except UnicodeDecodeError:
         # Not a text file, just copy it
@@ -181,6 +210,8 @@ def populate_documents(
                     stats["files_copied"] += 1
                 else:
                     stats["files_failed"] += 1
+                    # If processing failed, continue to the next file
+                    continue
             else:
                 stats["files_copied"] += 1
         else:
