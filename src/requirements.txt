@@ -1,4 +1,20 @@
+# Core dependencies
 click>=8.0.0
 openai>=1.0.0
+tqdm>=4.65.0
+colorama>=0.4.6  # For Windows color support
+
+# Testing
 pytest>=7.0.0
 pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+hypothesis>=6.70.0
+
+# Code quality
+black>=23.3.0
+isort>=5.12.0
+flake8>=6.0.0
+flake8-docstrings>=1.7.0
+mypy>=1.3.0
+pre-commit>=3.3.2
+types-requests>=2.30.0.0

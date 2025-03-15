@@ -1,12 +1,23 @@
 """
 CLI entry point for the CLI Onboarding Agent.
+
+This module provides the command-line interface for the CLI Onboarding Agent,
+including AI-powered features for template customization and content generation.
 """
 
 import os
 import sys
 import logging
-import click
 from pathlib import Path
+from typing import Optional, Dict, Any, List
+
+import click
+
+from cli_onboarding_agent.error_handling import handle_error, CLIError, TemplateError, GenerationError
+from cli_onboarding_agent.ui import (
+    print_success, print_error, print_warning, print_info, print_header,
+    print_step, setup_colored_logging, process_with_progress
+)
 
 # Set up logging
 logging.basicConfig(
@@ -15,6 +26,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger("cli_onboarding_agent")
+
+# Set up colored logging
+setup_colored_logging(logger)
 
 # Import other modules
 from cli_onboarding_agent.template_reader import read_template, validate_template_structure
@@ -87,8 +101,35 @@ from cli_onboarding_agent.validator import validate_result
     "--author-email",
     help="Email of the author. Used to replace {{author_email}} in template files."
 )
+@click.option(
+    "--ai-assist",
+    is_flag=True,
+    help="Enable AI assistance for template customization and content generation."
+)
+@click.option(
+    "--ai-generate-readme",
+    is_flag=True,
+    help="Use AI to generate or enhance README files."
+)
+@click.option(
+    "--ai-resolve-conflicts",
+    is_flag=True,
+    help="Use AI to help resolve file conflicts."
+)
+@click.option(
+    "--ai-analyze-template",
+    is_flag=True,
+    help="Use AI to analyze the template and provide recommendations."
+)
+@click.option(
+    "--ai-generate-docstrings",
+    is_flag=True,
+    help="Use AI to generate or improve docstrings in code files."
+)
+@handle_error
 def main(target_path, domains_dir, template, config, force, dry_run, verbose, exclude, include,
-         project_name, package_name, project_description, author, author_email):
+         project_name, package_name, project_description, author, author_email,
+         ai_assist, ai_generate_readme, ai_resolve_conflicts, ai_analyze_template, ai_generate_docstrings):
     """
     Generate a standardized folder structure from a template.
 
@@ -97,6 +138,7 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
     # Set up logging level based on verbose flag
     if verbose:
         logger.setLevel(logging.DEBUG)
+        print_info("Verbose mode enabled")
     
     # Ensure projects are created in the domains directory
     domains_path = Path(domains_dir).absolute()
@@ -116,8 +158,19 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
     # Ensure target_path is absolute
     target_path = target_path.absolute()
     
+    # Initialize AI assistant if needed
+    ai_assistant = None
+    if ai_assist or ai_generate_readme or ai_resolve_conflicts or ai_analyze_template or ai_generate_docstrings:
+        try:
+            from cli_onboarding_agent.ai_assistant import AIAssistant
+            ai_assistant = AIAssistant()
+            logger.info("AI assistance enabled")
+        except (ImportError, ValueError) as e:
+            logger.warning(f"Failed to initialize AI assistant: {str(e)}")
+            logger.warning("AI features will be disabled")
+    
     # Log the start of the process
-    logger.info(f"Starting CLI Onboarding Agent")
+    print_header("Starting CLI Onboarding Agent")
     logger.info(f"Domains directory: {domains_path}")
     logger.info(f"Target path: {target_path}")
     
@@ -143,8 +196,9 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
         logger.debug(f"Using default template at {template_path}")
         
         if not template_path.exists() or not template_path.is_dir():
-            logger.error(f"Default template not found at {template_path}")
-            raise FileNotFoundError(f"Default template not found at {template_path}")
+            error_msg = f"Default template not found at {template_path}"
+            logger.error(error_msg)
+            raise TemplateError(error_msg, {"template_path": str(template_path)})
     
     # Log configuration
     if config:
@@ -153,7 +207,7 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
     
     # Log dry run mode
     if dry_run:
-        logger.info("Dry run mode enabled - no changes will be made")
+        print_warning("Dry run mode enabled - no changes will be made")
     
     # Log exclude and include patterns
     logger.debug(f"Exclude patterns: {exclude}")
@@ -196,8 +250,11 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
         
         logger.debug(f"Template variables: {variables}")
         
+        # Define the total number of steps
+        total_steps = 4
+        
         # 1. Read the template structure
-        logger.info("Reading template structure...")
+        print_step(1, total_steps, "Reading template structure")
         template_structure = read_template(template_path, exclude, include)
         
         # Validate template structure
@@ -205,21 +262,109 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
         if not is_valid:
             for error in errors:
                 logger.error(f"Template validation error: {error}")
-            raise ValueError("Invalid template structure")
+            raise TemplateError("Invalid template structure", {"errors": errors})
+        
+        # Analyze template with AI if requested
+        if ai_assistant and ai_analyze_template:
+            logger.info("Analyzing template with AI...")
+            analysis = ai_assistant.analyze_template(template_structure)
+            
+            logger.info(f"AI Template Analysis: {analysis.get('assessment', 'No assessment provided')}")
+            
+            if analysis.get('suggestions'):
+                logger.info("AI Suggestions:")
+                for suggestion in analysis.get('suggestions', []):
+                    logger.info(f"  - {suggestion}")
+            
+            if analysis.get('recommendations'):
+                logger.info("AI Recommendations:")
+                for recommendation in analysis.get('recommendations', []):
+                    logger.info(f"  - {recommendation}")
+            
+            if analysis.get('issues'):
+                logger.warning("AI Identified Issues:")
+                for issue in analysis.get('issues', []):
+                    logger.warning(f"  - {issue}")
         
         # 2. Generate the folder structure
-        logger.info("Generating folder structure...")
+        print_step(2, total_steps, "Generating folder structure")
         if not dry_run:
             generate_structure(target_path, template_structure, template_path, dry_run, force)
         
         # 3. Populate the documents
-        logger.info("Populating documents...")
+        print_step(3, total_steps, "Populating documents")
         logger.info(f"Using variables for template replacement: {variables}")
         if not dry_run:
-            populate_documents(target_path, template_path, template_structure, dry_run, force, variables)
+            # Pass AI assistant for conflict resolution if requested
+            ai_conflict_resolver = ai_assistant if ai_resolve_conflicts else None
+            populate_documents(
+                target_path, 
+                template_path, 
+                template_structure, 
+                dry_run, 
+                force, 
+                variables,
+                ai_conflict_resolver
+            )
+            
+            # Generate or enhance README with AI if requested
+            if ai_assistant and ai_generate_readme:
+                readme_path = target_path / "README.md"
+                if readme_path.exists():
+                    logger.info("Enhancing README.md with AI...")
+                    
+                    # Read existing README
+                    with open(readme_path, 'r') as f:
+                        existing_readme = f.read()
+                    
+                    # Prepare project info
+                    project_info = {
+                        "project_name": project_name,
+                        "package_name": package_name,
+                        "project_description": project_description,
+                        "author": author,
+                        "author_email": author_email,
+                        "structure": template_structure
+                    }
+                    
+                    # Generate enhanced README
+                    enhanced_readme = ai_assistant.generate_readme(project_info)
+                    
+                    # Write enhanced README
+                    with open(readme_path, 'w') as f:
+                        f.write(enhanced_readme)
+                    
+                    logger.info("README.md enhanced with AI")
+            
+            # Generate or improve docstrings with AI if requested
+            if ai_assistant and ai_generate_docstrings:
+                logger.info("Generating docstrings for Python files...")
+                
+                # Find all Python files in the target directory
+                python_files = list(target_path.glob("**/*.py"))
+                
+                for py_file in python_files:
+                    if py_file.is_file():
+                        try:
+                            # Read the file
+                            with open(py_file, 'r') as f:
+                                code = f.read()
+                            
+                            # Generate improved docstrings
+                            improved_code = ai_assistant.generate_docstrings(code, str(py_file))
+                            
+                            # Write the improved code back to the file
+                            with open(py_file, 'w') as f:
+                                f.write(improved_code)
+                            
+                            logger.debug(f"Added docstrings to {py_file.relative_to(target_path)}")
+                        except Exception as e:
+                            logger.warning(f"Failed to generate docstrings for {py_file}: {str(e)}")
+                
+                logger.info(f"Generated docstrings for {len(python_files)} Python files")
         
         # 4. Validate the result
-        logger.info("Validating result...")
+        print_step(4, total_steps, "Validating result")
         if not dry_run:
             validation_result = validate_result(target_path, template_structure, template_path)
             if not validation_result["is_valid"]:
@@ -229,15 +374,19 @@ def main(target_path, domains_dir, template, config, force, dry_run, verbose, ex
         
         # Log completion
         if dry_run:
-            logger.info("Dry run completed successfully")
+            print_success("Dry run completed successfully")
         else:
-            logger.info(f"Project structure created successfully at {target_path}")
+            print_success(f"Project structure created successfully at {target_path}")
         
+    except CLIError:
+        # These are already handled by the handle_error decorator
+        raise
     except Exception as e:
-        logger.error(f"Error: {str(e)}")
+        # Wrap unexpected exceptions in a CLIError
+        logger.error(f"Unexpected error: {str(e)}")
         if verbose:
             logger.exception("Detailed error information:")
-        sys.exit(1)
+        raise CLIError(f"Unexpected error: {str(e)}", {"exception_type": type(e).__name__})
 
 
 if __name__ == "__main__":

@@ -2,14 +2,17 @@
 Populator module for the CLI Onboarding Agent.
 
 This module is responsible for copying template documents to the target structure,
-ensuring all non-guide documents are properly transferred.
+ensuring all non-guide documents are properly transferred. It also provides
+conflict resolution capabilities, including AI-powered conflict resolution.
 """
 
 import os
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional, Set
+from typing import Dict, List, Any, Tuple, Optional, Set, Union, Callable
+
+from cli_onboarding_agent.ui import process_with_progress
 
 from cli_onboarding_agent.template_reader import TemplateStructure
 
@@ -47,7 +50,8 @@ def copy_file(
     source_file: Path,
     target_file: Path,
     dry_run: bool = False,
-    force: bool = False
+    force: bool = False,
+    ai_assistant: Optional[Any] = None
 ) -> bool:
     """
     Copy a file from source to target.
@@ -66,10 +70,38 @@ def copy_file(
         return True
     
     try:
-        # Check if the target file exists and should be overwritten
-        if target_file.exists() and not should_overwrite_file(target_file, force):
-            logger.debug(f"Skipping existing file: {target_file}")
-            return False
+        # Check if the target file exists
+        if target_file.exists():
+            # If AI assistant is available and the file is a text file, try to resolve conflicts
+            if ai_assistant and is_text_file(target_file):
+                try:
+                    # Read the source and target files
+                    with open(source_file, 'r', encoding='utf-8') as f:
+                        source_content = f.read()
+                    
+                    with open(target_file, 'r', encoding='utf-8') as f:
+                        target_content = f.read()
+                    
+                    # Use AI to resolve conflicts
+                    logger.info(f"Using AI to resolve conflicts in {target_file}")
+                    merged_content, explanation = ai_assistant.resolve_conflict(
+                        source_content, target_content, str(target_file)
+                    )
+                    
+                    # Write the merged content to the target file
+                    with open(target_file, 'w', encoding='utf-8') as f:
+                        f.write(merged_content)
+                    
+                    logger.info(f"AI conflict resolution for {target_file}: {explanation[:100]}...")
+                    return True
+                except Exception as e:
+                    logger.error(f"AI conflict resolution failed for {target_file}: {str(e)}")
+                    # Fall back to normal behavior
+            
+            # If no AI resolution or it failed, check if we should overwrite
+            if not should_overwrite_file(target_file, force):
+                logger.debug(f"Skipping existing file: {target_file}")
+                return False
         
         # Ensure the target directory exists
         target_file.parent.mkdir(parents=True, exist_ok=True)
@@ -83,10 +115,29 @@ def copy_file(
         return False
 
 
+def is_text_file(file_path: Path) -> bool:
+    """
+    Check if a file is a text file.
+    
+    Args:
+        file_path: The file path to check
+        
+    Returns:
+        True if the file is a text file, False otherwise
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            f.read(1024)  # Try to read some content
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
 def process_file_content(
     source_file: Path,
     target_file: Path,
-    variables: Dict[str, str] = None
+    variables: Dict[str, str] = None,
+    ai_assistant: Optional[Any] = None
 ) -> bool:
     """
     Process file content during copying, e.g., replacing template variables.
@@ -162,7 +213,8 @@ def populate_documents(
     template_structure: TemplateStructure,
     dry_run: bool = False,
     force: bool = False,
-    variables: Dict[str, str] = None
+    variables: Dict[str, str] = None,
+    ai_assistant: Optional[Any] = None
 ) -> Dict[str, Any]:
     """
     Copy template documents to the target structure.
@@ -190,8 +242,11 @@ def populate_documents(
         "files_failed": 0,
     }
     
-    # Copy files
+    # Get all files to copy
     rel_files = template_structure.get_relative_files(template_path)
+    file_items = []
+    
+    # Prepare file items for processing
     for rel_file_path, metadata in rel_files.items():
         source_file = template_path / rel_file_path
         target_file = target_path / rel_file_path
@@ -202,20 +257,55 @@ def populate_documents(
             stats["files_skipped"] += 1
             continue
         
+        file_items.append((source_file, target_file))
+    
+    # Define the file processing function
+    def process_file(item: Tuple[Path, Path]) -> Dict[str, Any]:
+        source_file, target_file = item
+        result = {
+            "copied": False,
+            "skipped": False,
+            "failed": False,
+            "file": str(target_file.relative_to(target_path))
+        }
+        
         # Copy the file
-        if copy_file(source_file, target_file, dry_run, force):
+        if copy_file(source_file, target_file, dry_run, force, ai_assistant):
             # Process file content if needed
             if not dry_run and variables:
-                if process_file_content(source_file, target_file, variables):
-                    stats["files_copied"] += 1
+                if process_file_content(source_file, target_file, variables, ai_assistant):
+                    result["copied"] = True
                 else:
-                    stats["files_failed"] += 1
-                    # If processing failed, continue to the next file
-                    continue
+                    result["failed"] = True
             else:
-                stats["files_copied"] += 1
+                result["copied"] = True
         else:
-            stats["files_skipped"] += 1
+            result["skipped"] = True
+        
+        return result
+    
+    # Process files with progress bar
+    if not dry_run and file_items:
+        results = process_with_progress(
+            file_items,
+            process_file,
+            desc="Copying files",
+            unit="file"
+        )
+        
+        # Update statistics
+        for result in results:
+            if result["copied"]:
+                stats["files_copied"] += 1
+            elif result["skipped"]:
+                stats["files_skipped"] += 1
+            elif result["failed"]:
+                stats["files_failed"] += 1
+    elif dry_run:
+        # In dry run mode, just log what would be done
+        for source_file, target_file in file_items:
+            logger.info(f"Would copy file: {source_file} -> {target_file}")
+            stats["files_copied"] += 1
     
     logger.info(f"Document population completed: {stats}")
     return stats
