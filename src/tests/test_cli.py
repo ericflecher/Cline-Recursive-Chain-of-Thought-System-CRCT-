@@ -48,6 +48,13 @@ def temp_target_dir(tmp_path):
     return target_dir
 
 
+@pytest.fixture
+def temp_domains_dir(tmp_path):
+    """Fixture for creating a temporary domains directory."""
+    domains_dir = tmp_path / "domains"
+    return domains_dir
+
+
 def test_cli_help(runner):
     """Test the CLI help output."""
     result = runner.invoke(main, ["--help"])
@@ -138,3 +145,99 @@ def test_cli_exclude_include(runner, temp_template_dir, temp_target_dir):
     
     # Check that other .md files were excluded
     assert not (temp_target_dir / "docs" / "README.md").exists()
+
+
+def test_domains_directory_creation(runner, temp_template_dir, tmp_path):
+    """Test that projects are created in the domains directory."""
+    # Define a project name
+    project_name = "test-project"
+    
+    # Define a domains directory
+    domains_dir = tmp_path / "custom-domains"
+    
+    # Run the CLI with the domains-dir option
+    result = runner.invoke(
+        main,
+        [
+            project_name,
+            "--domains-dir", str(domains_dir),
+            "--template", str(temp_template_dir),
+            "--force",
+            "--verbose",
+        ]
+    )
+    assert result.exit_code == 0
+    
+    # Check that the domains directory was created
+    assert domains_dir.exists()
+    assert domains_dir.is_dir()
+    
+    # Check that the project was created inside the domains directory
+    project_path = domains_dir / project_name
+    assert project_path.exists()
+    assert project_path.is_dir()
+    
+    # Check that the expected directories were created inside the project
+    assert (project_path / "src").exists()
+    assert (project_path / "docs").exists()
+    assert (project_path / "tests").exists()
+
+
+def test_domains_directory_default(runner, temp_template_dir, tmp_path):
+    """Test that projects are created in the default domains directory if not specified."""
+    # Define a project name
+    project_name = "test-project"
+    
+    # Run the CLI without specifying a domains directory (should use the default "domains")
+    with runner.isolated_filesystem(temp_dir=tmp_path) as fs:
+        result = runner.invoke(
+            main,
+            [
+                project_name,
+                "--template", str(temp_template_dir),
+                "--force",
+                "--verbose",
+            ]
+        )
+        assert result.exit_code == 0
+        
+        # Check that the default domains directory was created
+        domains_dir = Path(fs) / "domains"
+        assert domains_dir.exists()
+        assert domains_dir.is_dir()
+        
+        # Check that the project was created inside the domains directory
+        project_path = domains_dir / project_name
+        assert project_path.exists()
+        assert project_path.is_dir()
+
+
+def test_absolute_path_in_domains(runner, temp_template_dir, tmp_path):
+    """Test that absolute paths are correctly placed in the domains directory."""
+    # Define an absolute path for the project
+    project_path = tmp_path / "absolute-path-project"
+    
+    # Define a domains directory
+    domains_dir = tmp_path / "domains-for-absolute"
+    
+    # Run the CLI with an absolute path and domains-dir option
+    result = runner.invoke(
+        main,
+        [
+            str(project_path),
+            "--domains-dir", str(domains_dir),
+            "--template", str(temp_template_dir),
+            "--force",
+            "--verbose",
+        ]
+    )
+    assert result.exit_code == 0
+    
+    # Check that the domains directory was created
+    assert domains_dir.exists()
+    assert domains_dir.is_dir()
+    
+    # Check that the project was created inside the domains directory with just the name
+    expected_path = domains_dir / project_path.name
+    assert expected_path.exists()
+    assert expected_path.is_dir()

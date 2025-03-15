@@ -26,6 +26,12 @@ from cli_onboarding_agent.validator import validate_result
 @click.command()
 @click.argument("target_path", type=click.Path())
 @click.option(
+    "--domains-dir",
+    type=click.Path(file_okay=False, dir_okay=True),
+    default="domains",
+    help="Base directory for all generated projects. Projects will be created under this directory."
+)
+@click.option(
     "-t", "--template",
     type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
     help="Path to the template folder. If not provided, a default template will be used."
@@ -81,7 +87,7 @@ from cli_onboarding_agent.validator import validate_result
     "--author-email",
     help="Email of the author. Used to replace {{author_email}} in template files."
 )
-def main(target_path, template, config, force, dry_run, verbose, exclude, include,
+def main(target_path, domains_dir, template, config, force, dry_run, verbose, exclude, include,
          project_name, package_name, project_description, author, author_email):
     """
     Generate a standardized folder structure from a template.
@@ -92,12 +98,33 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
     if verbose:
         logger.setLevel(logging.DEBUG)
     
-    # Convert target_path to absolute path
-    target_path = Path(target_path).absolute()
+    # Ensure projects are created in the domains directory
+    domains_path = Path(domains_dir).absolute()
+    
+    # If target_path is not already within domains_path, place it there
+    target_path = Path(target_path)
+    if not str(target_path).startswith(str(domains_path)):
+        # If target_path is absolute, extract just the name
+        if target_path.is_absolute():
+            target_name = target_path.name
+        else:
+            target_name = target_path
+        
+        # Create the new target path within domains directory
+        target_path = domains_path / target_name
+    
+    # Ensure target_path is absolute
+    target_path = target_path.absolute()
     
     # Log the start of the process
     logger.info(f"Starting CLI Onboarding Agent")
+    logger.info(f"Domains directory: {domains_path}")
     logger.info(f"Target path: {target_path}")
+    
+    # Create domains directory if it doesn't exist
+    if not domains_path.exists():
+        logger.info(f"Creating domains directory: {domains_path}")
+        domains_path.mkdir(parents=True, exist_ok=True)
     
     # Validate target path
     if target_path.exists() and not force:
