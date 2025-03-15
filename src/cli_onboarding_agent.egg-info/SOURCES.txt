@@ -13,6 +13,7 @@ cli_onboarding_agent.egg-info/requires.txt
 cli_onboarding_agent.egg-info/top_level.txt
 cli_onboarding_agent/templates/__init__.py
 tests/__init__.py
+tests/conftest.py
 tests/test_cli.py
 tests/test_generator.py
 tests/test_populator.py
