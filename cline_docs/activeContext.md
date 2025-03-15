@@ -23,6 +23,8 @@
 4. Implement Template Document Population (Task 4) - Copy template documents to the target structure
 5. Implement Validation and Testing (Task 5) - Ensure reliability and correctness
 6. Create a comm folder where folder templates created. These folder templates should not be built in root.
+7. The system should have a terminal interface for all the features once th4e onboarding AI agent is in place. the system should use https://realpython.com/python-textual/ for this user interface. Understand its APIs, and implement so that the user can create, onboard, and generate requiremenets for new and existing docmains using the OpenAI agents.
+8. Ensure the openAI agent(s) are using the OpenAI framework, tools, oberservablity, logging to their fullest extent to support the goals of this system
 
 ## Active Decisions and Considerations:
 
