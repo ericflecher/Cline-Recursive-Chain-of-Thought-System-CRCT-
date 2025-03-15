@@ -111,63 +111,13 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
         logger.info(f"Template path: {template_path}")
     else:
         logger.info("Using built-in default template")
-        # Create a temporary directory with a default template structure
-        import tempfile
-        import shutil
+        # Use the default template in the package
+        template_path = Path(__file__).parent / "templates" / "default"
+        logger.debug(f"Using default template at {template_path}")
         
-        temp_dir = Path(tempfile.mkdtemp())
-        try:
-            # Create a basic project structure
-            (temp_dir / "src").mkdir()
-            (temp_dir / "docs").mkdir()
-            (temp_dir / "tests").mkdir()
-            
-            # Create README.md
-            (temp_dir / "README.md").write_text("# Project\n\nProject description\n")
-            
-            # Create setup.py
-            (temp_dir / "setup.py").write_text(
-                "from setuptools import setup, find_packages\n\n"
-                "setup(\n"
-                "    name='project',\n"
-                "    version='0.1.0',\n"
-                "    packages=find_packages(),\n"
-                ")\n"
-            )
-            
-            # Create src/__init__.py
-            (temp_dir / "src" / "__init__.py").write_text("")
-            
-            # Create src/main.py
-            (temp_dir / "src" / "main.py").write_text(
-                "def main():\n"
-                "    print('Hello, world!')\n\n"
-                "if __name__ == '__main__':\n"
-                "    main()\n"
-            )
-            
-            # Create docs/README.md
-            (temp_dir / "docs" / "README.md").write_text("# Documentation\n")
-            
-            # Create tests/__init__.py
-            (temp_dir / "tests" / "__init__.py").write_text("")
-            
-            # Create tests/test_main.py
-            (temp_dir / "tests" / "test_main.py").write_text(
-                "import unittest\n\n"
-                "class TestMain(unittest.TestCase):\n"
-                "    def test_main(self):\n"
-                "        self.assertTrue(True)\n"
-            )
-            
-            # Use the temporary directory as the template path
-            template_path = temp_dir
-            logger.debug(f"Created default template at {template_path}")
-            
-        except Exception as e:
-            logger.error(f"Failed to create default template: {str(e)}")
-            shutil.rmtree(temp_dir, ignore_errors=True)
-            raise
+        if not template_path.exists() or not template_path.is_dir():
+            logger.error(f"Default template not found at {template_path}")
+            raise FileNotFoundError(f"Default template not found at {template_path}")
     
     # Log configuration
     if config:
@@ -182,8 +132,7 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
     logger.debug(f"Exclude patterns: {exclude}")
     logger.debug(f"Include patterns: {include}")
     
-    # Flag to track if we're using a temporary template directory
-    using_temp_template = template is None
+    # We're no longer using a temporary template directory
     
     try:
         # Prepare variables for template replacement
@@ -261,21 +210,7 @@ def main(target_path, template, config, force, dry_run, verbose, exclude, includ
         logger.error(f"Error: {str(e)}")
         if verbose:
             logger.exception("Detailed error information:")
-        
-        # Clean up temporary template directory if we created one
-        if using_temp_template and template_path and template_path.exists():
-            import shutil
-            logger.debug(f"Cleaning up temporary template directory: {template_path}")
-            shutil.rmtree(template_path, ignore_errors=True)
-        
         sys.exit(1)
-    
-    finally:
-        # Clean up temporary template directory if we created one
-        if using_temp_template and template_path and template_path.exists():
-            import shutil
-            logger.debug(f"Cleaning up temporary template directory: {template_path}")
-            shutil.rmtree(template_path, ignore_errors=True)
 
 
 if __name__ == "__main__":
