@@ -11,9 +11,11 @@ cli_onboarding_agent.egg-info/dependency_links.txt
 cli_onboarding_agent.egg-info/entry_points.txt
 cli_onboarding_agent.egg-info/requires.txt
 cli_onboarding_agent.egg-info/top_level.txt
+cli_onboarding_agent/templates/__init__.py
 tests/__init__.py
 tests/test_cli.py
 tests/test_generator.py
 tests/test_populator.py
+tests/test_script.py
 tests/test_template_reader.py
 tests/test_validator.py
