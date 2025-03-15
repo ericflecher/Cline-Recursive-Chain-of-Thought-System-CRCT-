@@ -1,0 +1,36 @@
+{
+  "name": "React Web Application",
+  "version": "1.0.0",
+  "description": "A template for creating React web applications with modern tooling",
+  "author": "Cline Team",
+  "tags": ["javascript", "react", "web", "frontend"],
+  "category": "Web",
+  "created": "2025-03-15",
+  "updated": "2025-03-15",
+  "dependencies": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "variables": [
+    {
+      "name": "project_name",
+      "description": "The name of the project",
+      "default": "my-react-app"
+    },
+    {
+      "name": "author",
+      "description": "The author of the project",
+      "default": "Your Name"
+    },
+    {
+      "name": "description",
+      "description": "A short description of the project",
+      "default": "A React web application"
+    },
+    {
+      "name": "version",
+      "description": "The initial version of the project",
+      "default": "0.1.0"
+    }
+  ]
+}

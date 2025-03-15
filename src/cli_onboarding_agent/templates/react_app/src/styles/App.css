@@ -1,0 +1,136 @@
+/* App container */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main content */
+main.container {
+  flex: 1;
+  padding: 2rem 15px;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  text-decoration: none;
+}
+
+.navbar-nav {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-left: 1.5rem;
+}
+
+.nav-link {
+  color: #666;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: #0066cc;
+}
+
+/* Footer */
+.footer {
+  background-color: #f8f9fa;
+  padding: 2rem 0;
+  border-top: 1px solid #e9ecef;
+  margin-top: 2rem;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .footer-content p:first-child {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Home page */
+.home-page {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.features {
+  margin: 3rem 0;
+  text-align: left;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features ul {
+  list-style: disc;
+  padding-left: 2rem;
+}
+
+.features li {
+  margin-bottom: 0.5rem;
+}
+
+.cta {
+  margin-top: 2rem;
+}
+
+/* About page */
+.about-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-content, .tech-stack {
+  margin: 2rem 0;
+}
+
+.tech-stack ul {
+  list-style: disc;
+  padding-left: 2rem;
+}
+
+/* Not Found page */
+.not-found-page {
+  text-align: center;
+  padding: 4rem 0;
+}

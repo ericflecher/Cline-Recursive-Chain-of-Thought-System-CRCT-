@@ -1,0 +1,47 @@
+{
+  "name": "FastAPI Web API",
+  "version": "1.0.0",
+  "description": "A template for creating Python web APIs with FastAPI",
+  "author": "Cline Team",
+  "tags": ["python", "api", "fastapi", "web", "backend"],
+  "category": "API",
+  "created": "2025-03-15",
+  "updated": "2025-03-15",
+  "dependencies": {
+    "python": ">=3.8",
+    "fastapi": ">=0.68.0",
+    "uvicorn": ">=0.15.0"
+  },
+  "variables": [
+    {
+      "name": "project_name",
+      "description": "The name of the project",
+      "default": "fastapi-project"
+    },
+    {
+      "name": "package_name",
+      "description": "The name of the package (Python module name)",
+      "default": "fastapi_project"
+    },
+    {
+      "name": "description",
+      "description": "A short description of the project",
+      "default": "A FastAPI web API"
+    },
+    {
+      "name": "author",
+      "description": "The author of the project",
+      "default": "Your Name"
+    },
+    {
+      "name": "author_email",
+      "description": "The email of the author",
+      "default": "your.email@example.com"
+    },
+    {
+      "name": "version",
+      "description": "The initial version of the project",
+      "default": "0.1.0"
+    }
+  ]
+}

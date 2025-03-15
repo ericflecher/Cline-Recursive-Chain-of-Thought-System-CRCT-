@@ -1,0 +1,56 @@
+{
+  "name": "Python CLI Tool",
+  "version": "1.0.0",
+  "description": "A template for creating Python command-line interface tools with Click",
+  "author": "Cline Team",
+  "tags": ["python", "cli", "command-line", "tool"],
+  "category": "CLI",
+  "created": "2025-03-15",
+  "updated": "2025-03-15",
+  "dependencies": {
+    "python": ">=3.8",
+    "click": ">=8.0.0"
+  },
+  "variables": [
+    {
+      "name": "project_name",
+      "description": "The name of the project",
+      "default": "cli-tool"
+    },
+    {
+      "name": "package_name",
+      "description": "The name of the package (Python module name)",
+      "default": "cli_tool"
+    },
+    {
+      "name": "description",
+      "description": "A short description of the project",
+      "default": "A Python CLI tool"
+    },
+    {
+      "name": "author",
+      "description": "The author of the project",
+      "default": "Your Name"
+    },
+    {
+      "name": "author_email",
+      "description": "The email of the author",
+      "default": "your.email@example.com"
+    },
+    {
+      "name": "version",
+      "description": "The initial version of the project",
+      "default": "0.1.0"
+    },
+    {
+      "name": "command_name",
+      "description": "The name of the CLI command",
+      "default": "cli-tool"
+    },
+    {
+      "name": "year",
+      "description": "The current year for copyright notices",
+      "default": "2025"
+    }
+  ]
+}

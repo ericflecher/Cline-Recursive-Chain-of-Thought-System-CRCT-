@@ -5,13 +5,25 @@ This script defines the package metadata, dependencies, and entry points
 for the CLI Onboarding Agent.
 """
 
+import os
 from setuptools import setup, find_packages
+
+# Read the contents of README.md
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, '..', 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name="cli_onboarding_agent",
     version="0.1.0",
     description="A CLI tool to generate standardized folder structures from templates",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Cline Team",
+    author_email="team@example.com",
+    url="https://github.com/cline-team/cli-onboarding-agent",
+    license="MIT",
+    keywords="cli, template, project structure, code generation, ai, openai",
     packages=find_packages(),
     install_requires=[
         "click>=8.0.0",
@@ -44,10 +56,13 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Topic :: Software Development :: Code Generators",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     python_requires=">=3.8",
     include_package_data=True,
