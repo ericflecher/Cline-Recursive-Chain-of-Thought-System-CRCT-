@@ -4,7 +4,7 @@ Tests for the main module.
 
 import unittest
 # This import will be replaced with the actual package name when the template is used
-# from test_cli_project import main
+# from new_test_project import main
 try:
     from src.main import main
 except ImportError:

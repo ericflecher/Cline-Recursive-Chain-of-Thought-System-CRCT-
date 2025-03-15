@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="test_cli_project",
+    name="new_test_project",
     version="0.1.0",
-    description="A Python project named Test CLI Project",
+    description="A test project created with the CLI Onboarding Agent",
     author="Cline Team",
     author_email="cline.team@example.com",
     packages=find_packages(where="src"),

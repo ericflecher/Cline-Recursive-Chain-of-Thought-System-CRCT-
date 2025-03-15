@@ -1,17 +1,17 @@
-# Test CLI Project
+# New Test Project
 
-A Python project named Test CLI Project
+A test project created with the CLI Onboarding Agent
 
 ## Installation
 
 ```bash
-pip install test_cli_project
+pip install new_test_project
 ```
 
 ## Usage
 
 ```python
-from test_cli_project import main
+from new_test_project import main
 
 main()
 ```

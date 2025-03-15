@@ -3,7 +3,16 @@ Tests for the main module.
 """
 
 import unittest
-from {{package_name}} import main
+# This import will be replaced with the actual package name when the template is used
+# from {{package_name}} import main
+try:
+    from src.main import main
+except ImportError:
+    # Fallback for when the package is not installed
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from src.main import main
 
 
 class TestMain(unittest.TestCase):
