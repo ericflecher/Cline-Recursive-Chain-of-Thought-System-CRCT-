@@ -102,27 +102,34 @@ def test_cli_basic_generation(runner, temp_template_dir, temp_target_dir):
             "--template", str(temp_template_dir),
             "--force",
             "--verbose",
+            "--domains-dir", str(temp_target_dir.parent / "domains")
         ]
     )
     assert result.exit_code == 0
     
-    # Check that the target directory was created
-    assert temp_target_dir.exists()
-    assert temp_target_dir.is_dir()
+    # Check that the domains directory was created
+    domains_dir = temp_target_dir.parent / "domains"
+    assert domains_dir.exists()
+    assert domains_dir.is_dir()
+    
+    # The project should be created in domains/target
+    project_dir = domains_dir / temp_target_dir.name
+    assert project_dir.exists()
+    assert project_dir.is_dir()
     
     # Check that the expected directories were created
-    assert (temp_target_dir / "src").exists()
-    assert (temp_target_dir / "docs").exists()
-    assert (temp_target_dir / "tests").exists()
+    assert (project_dir / "src").exists()
+    assert (project_dir / "docs").exists()
+    assert (project_dir / "tests").exists()
     
     # Check that the expected files were created
-    assert (temp_target_dir / "README.md").exists()
-    assert (temp_target_dir / "src" / "__init__.py").exists()
-    assert (temp_target_dir / "src" / "main.py").exists()
-    assert (temp_target_dir / "docs" / "README.md").exists()
+    assert (project_dir / "README.md").exists()
+    assert (project_dir / "src" / "__init__.py").exists()
+    assert (project_dir / "src" / "main.py").exists()
+    assert (project_dir / "docs" / "README.md").exists()
     
     # Check that the guide document was excluded
-    assert not (temp_target_dir / "README_guide.md").exists()
+    assert not (project_dir / "README_guide.md").exists()
 
 
 def test_cli_exclude_include(runner, temp_template_dir, temp_target_dir):
@@ -136,15 +143,19 @@ def test_cli_exclude_include(runner, temp_template_dir, temp_target_dir):
             "--exclude", "*.md",
             "--include", "README.md",
             "--verbose",
+            "--domains-dir", str(temp_target_dir.parent / "domains")
         ]
     )
     assert result.exit_code == 0
     
+    # The project should be created in domains/target
+    project_dir = temp_target_dir.parent / "domains" / temp_target_dir.name
+    
     # Check that README.md was included despite the exclude pattern
-    assert (temp_target_dir / "README.md").exists()
+    assert (project_dir / "README.md").exists()
     
     # Check that other .md files were excluded
-    assert not (temp_target_dir / "docs" / "README.md").exists()
+    assert not (project_dir / "docs" / "README.md").exists()
 
 
 def test_domains_directory_creation(runner, temp_template_dir, tmp_path):
